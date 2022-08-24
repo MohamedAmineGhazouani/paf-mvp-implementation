@@ -3,8 +3,9 @@ import { CookieOptions } from 'express-serve-static-core';
 import { encodeBase64, fromDataToObject, QSParam } from '../query-string';
 import { CorsOptions } from 'cors';
 import domainParser from 'tld-extract';
-import { ReturnUrl } from '@core/model';
+import { RedirectGetIdsPrefsRequest, ReturnUrl } from '@core/model';
 import { RedirectContext, RestContext } from '@core/crypto';
+import { NodeError } from '@core/errors';
 
 export const setCookie = (
   res: Response,
@@ -56,6 +57,11 @@ export const setInQueryString = <T>(url: URL, requestOrResponse: T): URL => {
   return url;
 };
 
+export const buildErrorRedirectUrl = (url: URL, httpCode: number, error: NodeError): URL => {
+  const errorResponse = { code: httpCode, error: error };
+  url.searchParams.set(QSParam.paf, encodeBase64(JSON.stringify(errorResponse)));
+  return url;
+};
 export const getCookies = (req: Request) => req.cookies ?? {};
 
 export const isValidHttpUrl = (urlString: string) => {
